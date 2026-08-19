@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="storm_title">Storm SSH</string>
+    <string name="storm_subtitle">Seu acesso SSH seguro em um toque</string>
+    <string name="storm_server_label">SERVIDOR AUTOMÁTICO</string>
+    <string name="storm_username">Usuário</string>
+    <string name="storm_password">Senha</string>
+    <string name="storm_connect">Conectar</string>
+    <string name="storm_disconnect">Desconectar</string>
+    <string name="storm_cancel">Cancelar</string>
+    <string name="storm_status_disconnected">Desconectado</string>
+    <string name="storm_status_connecting">Conectando…</string>
+    <string name="storm_status_connected">Conectado — VPN ativa</string>
+    <string name="storm_status_error">Erro: %1$s</string>
+    <string name="storm_username_required">Digite o usuário</string>
+    <string name="storm_password_required">Digite a senha</string>
+    <string name="storm_vpn_permission_denied">Permissão de VPN não concedida</string>
+    <string name="storm_footer">ssh.hoststorm.cloud • Porta 2222 • SSH Plus Manager</string>
+</resources>
