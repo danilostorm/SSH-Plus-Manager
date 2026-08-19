@@ -63,15 +63,43 @@ jobs:
           cp -a "$GITHUB_WORKSPACE/AndroidClientV2/overlay/." "$APP_DIR/"
           cd "$APP_DIR"
 
-          # Keep the JNI Java package hev.sockstun, but publish under our own app id.
-          sed -i 's/applicationId "hev.sockstun"/applicationId "cloud.hoststorm.stormssh"/' app/build.gradle
-          sed -i 's/versionCode 12/versionCode 200/' app/build.gradle
-          sed -i 's/versionName "8.0"/versionName "2.0.0"/' app/build.gradle
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
 
-          # JSch provides the SSH transport. Maven Central is used instead of relying on JCenter.
-          sed -i "/implementation 'com.google.android.material:material:1.12.0'/a\\\timplementation 'com.github.mwiede:jsch:0.2.23'" app/build.gradle
-          sed -i '/google()/a\\\t\tmavenCentral()' build.gradle
-          sed -i 's#<string name="app_name">[^<]*</string>#<string name="app_name">Storm SSH</string>#' app/src/main/res/values/strings.xml
+          app_gradle = Path("app/build.gradle")
+          s = app_gradle.read_text()
+          s = s.replace('applicationId "hev.sockstun"', 'applicationId "cloud.hoststorm.stormssh"')
+          s = s.replace('versionCode 12', 'versionCode 200')
+          s = s.replace('versionName "8.0"', 'versionName "2.0.0"')
+          needle = "implementation 'com.google.android.material:material:1.12.0'"
+          dependency = "implementation 'com.github.mwiede:jsch:0.2.23'"
+          if dependency not in s:
+              if needle not in s:
+                  raise SystemExit("Material dependency anchor not found in app/build.gradle")
+              s = s.replace(needle, needle + "\n\t" + dependency)
+          app_gradle.write_text(s)
+
+          root_gradle = Path("build.gradle")
+          s = root_gradle.read_text()
+          if "mavenCentral()" not in s:
+              s = s.replace("\t\tgoogle()", "\t\tgoogle()\n\t\tmavenCentral()")
+          root_gradle.write_text(s)
+
+          strings = Path("app/src/main/res/values/strings.xml")
+          s = strings.read_text()
+          s = re.sub(
+              r'<string name="app_name">[^<]*</string>',
+              '<string name="app_name">Storm SSH</string>',
+              s,
+          )
+          strings.write_text(s)
+          PY
+
+          echo '--- root repositories ---'
+          grep -n -E 'google\(\)|mavenCentral\(\)|jcenter\(\)' build.gradle
+          echo '--- app identity/dependency ---'
+          grep -n -E 'applicationId|versionCode|versionName|mwiede:jsch' app/build.gradle
 
       - name: Build installable APK
         shell: bash
@@ -83,7 +111,9 @@ jobs:
           ./gradlew :app:assembleDebug --no-daemon --stacktrace
 
           APK_NAME="StormSSH-v${APP_VERSION}.apk"
-          cp app/build/outputs/apk/debug/*.apk "$GITHUB_WORKSPACE/$APK_NAME"
+          APK_SOURCE="$(find app/build/outputs/apk/debug -maxdepth 1 -type f -name '*.apk' | head -n 1)"
+          test -n "$APK_SOURCE"
+          cp "$APK_SOURCE" "$GITHUB_WORKSPACE/$APK_NAME"
           sha256sum "$GITHUB_WORKSPACE/$APK_NAME" > "$GITHUB_WORKSPACE/$APK_NAME.sha256"
 
       - name: Upload build artifact
