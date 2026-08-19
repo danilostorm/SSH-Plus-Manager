@@ -146,3 +146,28 @@ jobs:
               --title "Storm SSH v${APP_VERSION}" \
               --notes "$NOTES"
           fi
+
+      - name: Record successful release
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > AndroidClientV2/RELEASE_STATUS.md <<EOF
+          # Storm SSH v2 release status
+
+          Build: SUCCESS
+          Release: SUCCESS
+          Version: ${APP_VERSION}
+          Tag: storm-ssh-v${APP_VERSION}
+          APK: StormSSH-v${APP_VERSION}.apk
+          Server: ssh.hoststorm.cloud:2222
+          Engine: SSH + local SOCKS5 + hev-socks5-tunnel/tun2socks
+          Source commit: ${GITHUB_SHA}
+          EOF
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add AndroidClientV2/RELEASE_STATUS.md
+          git diff --cached --quiet && exit 0
+          git commit -m 'chore: record Storm SSH v2 release [skip ci]'
+          git push
