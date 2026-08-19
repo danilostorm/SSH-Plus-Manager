@@ -1,0 +1,118 @@
+name: Storm SSH v2 Android
+
+on:
+  pull_request:
+    paths:
+      - 'AndroidClientV2/**'
+      - '.github/workflows/storm-vpn-v2.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'AndroidClientV2/**'
+      - '.github/workflows/storm-vpn-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  APP_VERSION: '2.0.0'
+  SOCKSTUN_COMMIT: 'f8d9e25cb3ebd712c1e092c619d539820fd1c8e0'
+
+jobs:
+  build:
+    name: Build Storm SSH v2 APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout SSH Plus Manager
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK and NDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager 'platforms;android-34' 'build-tools;34.0.0' 'ndk;29.0.14206865'
+
+      - name: Fetch pinned tun2socks base
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_DIR="${RUNNER_TEMP}/stormssh-v2"
+          git clone --recursive https://github.com/heiher/sockstun.git "$APP_DIR"
+          cd "$APP_DIR"
+          git checkout "$SOCKSTUN_COMMIT"
+          git submodule update --init --recursive
+
+      - name: Apply Storm SSH v2 overlay
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_DIR="${RUNNER_TEMP}/stormssh-v2"
+          cp -a "$GITHUB_WORKSPACE/AndroidClientV2/overlay/." "$APP_DIR/"
+          cd "$APP_DIR"
+
+          # Keep the JNI Java package hev.sockstun, but publish under our own app id.
+          sed -i 's/applicationId "hev.sockstun"/applicationId "cloud.hoststorm.stormssh"/' app/build.gradle
+          sed -i 's/versionCode 12/versionCode 200/' app/build.gradle
+          sed -i 's/versionName "8.0"/versionName "2.0.0"/' app/build.gradle
+
+          # JSch provides the SSH transport. Maven Central is used instead of relying on JCenter.
+          sed -i "/implementation 'com.google.android.material:material:1.12.0'/a\\\timplementation 'com.github.mwiede:jsch:0.2.23'" app/build.gradle
+          sed -i '/google()/a\\\t\tmavenCentral()' build.gradle
+          sed -i 's#<string name="app_name">[^<]*</string>#<string name="app_name">Storm SSH</string>#' app/src/main/res/values/strings.xml
+
+      - name: Build installable APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_DIR="${RUNNER_TEMP}/stormssh-v2"
+          cd "$APP_DIR"
+          chmod +x gradlew
+          ./gradlew :app:assembleDebug --no-daemon --stacktrace
+
+          APK_NAME="StormSSH-v${APP_VERSION}.apk"
+          cp app/build/outputs/apk/debug/*.apk "$GITHUB_WORKSPACE/$APK_NAME"
+          sha256sum "$GITHUB_WORKSPACE/$APK_NAME" > "$GITHUB_WORKSPACE/$APK_NAME.sha256"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StormSSH-v${{ env.APP_VERSION }}
+          path: |
+            StormSSH-v${{ env.APP_VERSION }}.apk
+            StormSSH-v${{ env.APP_VERSION }}.apk.sha256
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TAG="storm-ssh-v${APP_VERSION}"
+          APK="StormSSH-v${APP_VERSION}.apk"
+          SUM="${APK}.sha256"
+          NOTES="Storm SSH v${APP_VERSION}: novo motor VPN baseado em tun2socks, SSH fixo em ssh.hoststorm.cloud:2222, persistencia em segundo plano, perfis de rede, atalhos de APN/rede/bateria e interface Storm."
+
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" "$APK" "$SUM" --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" "$APK" "$SUM" \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title "Storm SSH v${APP_VERSION}" \
+              --notes "$NOTES"
+          fi
