@@ -108,3 +108,26 @@ jobs:
               --title "Storm SSH v${APP_VERSION}" \
               --notes "Cliente Android do SSH Plus Manager. Servidor pré-configurado: ssh.hoststorm.cloud:2222. Informe somente usuário e senha e permita a VPN do Android na primeira conexão. APK inicial de teste assinado com chave debug."
           fi
+
+      - name: Record successful release
+        if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > AndroidClient/RELEASE_STATUS.md <<EOF
+          # Storm SSH release status
+
+          Build: SUCCESS
+          Version: ${APP_VERSION}
+          Tag: storm-ssh-v${APP_VERSION}
+          APK: StormSSH-v${APP_VERSION}.apk
+          Source commit: ${GITHUB_SHA}
+          Server: ssh.hoststorm.cloud:2222
+          EOF
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add AndroidClient/RELEASE_STATUS.md
+          git diff --cached --quiet && exit 0
+          git commit -m 'chore: record Storm SSH release [skip ci]'
+          git push
