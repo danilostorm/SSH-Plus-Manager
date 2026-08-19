@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="#07111E">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="22dp"
+        android:paddingRight="22dp"
+        android:paddingTop="40dp"
+        android:paddingBottom="32dp">
+
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/ic_storm"
+            android:contentDescription="Storm SSH" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:text="Storm SSH"
+            android:textColor="#F8FAFC"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:text="Sua conexão SSH segura em um toque"
+            android:textColor="#94A3B8"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/serverChip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="22dp"
+            android:background="@drawable/storm_chip"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:text="ssh.hoststorm.cloud:2222"
+            android:textColor="#22D3EE"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp"
+            android:background="@drawable/storm_panel"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PERFIL DE REDE / OPERADORA"
+                android:textColor="#CBD5E1"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/profileSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/storm_input"
+                android:paddingLeft="14dp"
+                android:paddingRight="14dp" />
+
+            <EditText
+                android:id="@+id/usernameInput"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/storm_input"
+                android:hint="Nome de usuário"
+                android:inputType="text"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:singleLine="true"
+                android:textColor="#F8FAFC"
+                android:textColorHint="#64748B"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/passwordInput"
+                android:layout_width="match_parent"
+                android:layout_height="58dp"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/storm_input"
+                android:hint="Senha"
+                android:inputType="textPassword"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:singleLine="true"
+                android:textColor="#F8FAFC"
+                android:textColorHint="#64748B"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/connectButton"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_weight="1"
+                    android:text="INICIAR"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="#0891B2"
+                    app:cornerRadius="16dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/reconnectButton"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_marginLeft="8dp"
+                    android:minWidth="0dp"
+                    android:padding="0dp"
+                    android:text="↻"
+                    android:textSize="24sp"
+                    app:backgroundTint="#111C2B"
+                    app:cornerRadius="16dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/logButton"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_marginLeft="8dp"
+                    android:minWidth="0dp"
+                    android:padding="0dp"
+                    android:text="≡"
+                    android:textSize="22sp"
+                    app:backgroundTint="#111C2B"
+                    app:cornerRadius="16dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/webButton"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_marginLeft="8dp"
+                    android:minWidth="0dp"
+                    android:padding="0dp"
+                    android:text="◎"
+                    android:textSize="22sp"
+                    app:backgroundTint="#111C2B"
+                    app:cornerRadius="16dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/serverButton"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_marginLeft="8dp"
+                    android:minWidth="0dp"
+                    android:padding="0dp"
+                    android:text="▤"
+                    android:textSize="20sp"
+                    app:backgroundTint="#111C2B"
+                    app:cornerRadius="16dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/storm_status"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/statusText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="DESCONECTADO"
+                android:textColor="#EF4444"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/statusDetail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:text="ssh.hoststorm.cloud • Porta 2222"
+                android:textColor="#64748B"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/menuButton"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="18dp"
+            android:text="☰  FERRAMENTAS E CONFIGURAÇÕES"
+            android:textStyle="bold"
+            app:backgroundTint="#101B2A"
+            app:cornerRadius="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:gravity="center"
+            android:text="Storm SSH • SSH Plus Manager • v2.0.0"
+            android:textColor="#475569"
+            android:textSize="12sp" />
+    </LinearLayout>
+</ScrollView>
